@@ -10,7 +10,7 @@
   (G_TYPE_CHECK_INSTANCE_CAST((obj), flutter_hello_plugin_get_type(), \
                               FlutterHelloPlugin))
 
-struct _FlTestPixelBufferTextureClass
+struct _MyTextureClass
 {
   FlPixelBufferTextureClass parent_class;
   int64_t texture_id = 0;
@@ -19,45 +19,45 @@ struct _FlTestPixelBufferTextureClass
   int32_t video_height = 0;
 };
 
-G_DECLARE_DERIVABLE_TYPE(FlTestPixelBufferTexture,
-                         fl_test_pixel_buffer_texture,
-                         FL,
-                         TEST_PIXEL_BUFFER_TEXTURE,
+G_DECLARE_DERIVABLE_TYPE(MyTexture,
+                         my_texture,
+                         MY,
+                         TEXTURE,
                          FlPixelBufferTexture)
 
-G_DEFINE_TYPE(FlTestPixelBufferTexture,
-              fl_test_pixel_buffer_texture,
+G_DEFINE_TYPE(MyTexture,
+              my_texture,
               fl_pixel_buffer_texture_get_type())
 
 struct _FlutterHelloPlugin
 {
   GObject parent_instance;
   FlTextureRegistrar *texture_registrar;
-  FlTestPixelBufferTexture *testPixelBufferTexture;
+  MyTexture *myTextxure;
 };
 
-static gboolean fl_test_pixel_buffer_texture_copy_pixels(
+static gboolean my_texture_copy_pixels(
     FlPixelBufferTexture *texture,
     const uint8_t **out_buffer,
     uint32_t *width,
     uint32_t *height,
     GError **error)
 {
-  *out_buffer = FL_TEST_PIXEL_BUFFER_TEXTURE_GET_CLASS(texture)->buffer;
+  *out_buffer = MY_TEXTURE_GET_CLASS(texture)->buffer;
   *width = 300;
   *height = 300;
 
   return TRUE;
 }
 
-static void fl_test_pixel_buffer_texture_class_init(
-    FlTestPixelBufferTextureClass *klass)
+static void my_texture_class_init(
+    MyTextureClass *klass)
 {
   FL_PIXEL_BUFFER_TEXTURE_CLASS(klass)->copy_pixels =
-      fl_test_pixel_buffer_texture_copy_pixels;
+      my_texture_copy_pixels;
 }
 
-static void fl_test_pixel_buffer_texture_init(FlTestPixelBufferTexture *self) {}
+static void my_texture_init(MyTexture *self) {}
 
 G_DEFINE_TYPE(FlutterHelloPlugin, flutter_hello_plugin, g_object_get_type())
 
@@ -80,12 +80,12 @@ static void flutter_hello_plugin_handle_method_call(
   }
   else if (strcmp(method, "registerTexture") == 0)
   {
-    self->testPixelBufferTexture = FL_TEST_PIXEL_BUFFER_TEXTURE(g_object_new(fl_test_pixel_buffer_texture_get_type(), nullptr));
-    FL_PIXEL_BUFFER_TEXTURE_GET_CLASS(self->testPixelBufferTexture)->copy_pixels = fl_test_pixel_buffer_texture_copy_pixels;
-    fl_texture_registrar_register_texture(self->texture_registrar, FL_TEXTURE(self->testPixelBufferTexture));
-    FL_TEST_PIXEL_BUFFER_TEXTURE_GET_CLASS(self->testPixelBufferTexture)->texture_id = reinterpret_cast<int64_t>(FL_TEXTURE(self->testPixelBufferTexture));
-    fl_texture_registrar_mark_texture_frame_available(self->texture_registrar, FL_TEXTURE(self->testPixelBufferTexture));
-    response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_int(FL_TEST_PIXEL_BUFFER_TEXTURE_GET_CLASS(self->testPixelBufferTexture)->texture_id)));
+    self->myTextxure = MY_TEXTURE(g_object_new(my_texture_get_type(), nullptr));
+    FL_PIXEL_BUFFER_TEXTURE_GET_CLASS(self->myTextxure)->copy_pixels = my_texture_copy_pixels;
+    fl_texture_registrar_register_texture(self->texture_registrar, FL_TEXTURE(self->myTextxure));
+    MY_TEXTURE_GET_CLASS(self->myTextxure)->texture_id = reinterpret_cast<int64_t>(FL_TEXTURE(self->myTextxure));
+    fl_texture_registrar_mark_texture_frame_available(self->texture_registrar, FL_TEXTURE(self->myTextxure));
+    response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_int(MY_TEXTURE_GET_CLASS(self->myTextxure)->texture_id)));
   }
   else if (strcmp(method, "nativeClick") == 0)
   {
@@ -95,8 +95,8 @@ static void flutter_hello_plugin_handle_method_call(
     {
       buffer[i] = 127;
     }
-    FL_TEST_PIXEL_BUFFER_TEXTURE_GET_CLASS(self->testPixelBufferTexture)->buffer = buffer;
-    fl_texture_registrar_mark_texture_frame_available(self->texture_registrar, FL_TEXTURE(self->testPixelBufferTexture));
+    MY_TEXTURE_GET_CLASS(self->myTextxure)->buffer = buffer;
+    fl_texture_registrar_mark_texture_frame_available(self->texture_registrar, FL_TEXTURE(self->myTextxure));
     response = FL_METHOD_RESPONSE(fl_method_success_response_new(nullptr));
   }
   else
