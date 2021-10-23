@@ -59,11 +59,13 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Center(
+        home: Scaffold(
+      appBar: AppBar(
+        title: const Text('Plugin example app'),
+      ),
+      body: Container(
+        color: Colors.black,
+        child: Center(
           child: Column(children: [
             textureId == null
                 ? const SizedBox()
@@ -74,7 +76,10 @@ class _MyAppState extends State<MyApp> {
                       textureId: textureId!,
                       filterQuality: FilterQuality.high,
                     )),
-            Text('Running on: $_platformVersion\n'),
+            Text(
+              'Running on: $_platformVersion\n',
+              style: const TextStyle(color: Colors.white),
+            ),
             TextButton(
                 onPressed: () {
                   FlutterHelloPlugin.nativeClick();
@@ -83,6 +88,6 @@ class _MyAppState extends State<MyApp> {
           ]),
         ),
       ),
-    );
+    ));
   }
 }
