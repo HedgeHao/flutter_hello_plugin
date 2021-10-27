@@ -5,6 +5,7 @@
 #include <sys/utsname.h>
 
 #include <cstring>
+#include <vector>
 
 #define FLUTTER_HELLO_PLUGIN(obj)                                     \
   (G_TYPE_CHECK_INSTANCE_CAST((obj), flutter_hello_plugin_get_type(), \
@@ -14,7 +15,7 @@ struct _MyTextureClass
 {
   FlPixelBufferTextureClass parent_class;
   int64_t texture_id = 0;
-  uint8_t *buffer = nullptr;
+  std::vector<uint8_t> buffer{};
   int32_t video_width = 0;
   int32_t video_height = 0;
 };
@@ -43,7 +44,7 @@ static gboolean my_texture_copy_pixels(
     uint32_t *height,
     GError **error)
 {
-  *out_buffer = MY_TEXTURE_GET_CLASS(texture)->buffer;
+  *out_buffer = MY_TEXTURE_GET_CLASS(texture)->buffer.data();
   *width = 300;
   *height = 300;
 
@@ -89,13 +90,13 @@ static void flutter_hello_plugin_handle_method_call(
   }
   else if (strcmp(method, "nativeClick") == 0)
   {
+    auto & buffer = MY_TEXTURE_GET_CLASS(self->myTextxure)->buffer;
     int len = 300 * 300 * 4;
-    uint8_t buffer[len];
+    buffer.resize(len);
     for (int i = 0; i < len; i++)
     {
       buffer[i] = 127;
     }
-    MY_TEXTURE_GET_CLASS(self->myTextxure)->buffer = buffer;
     fl_texture_registrar_mark_texture_frame_available(self->texture_registrar, FL_TEXTURE(self->myTextxure));
     response = FL_METHOD_RESPONSE(fl_method_success_response_new(nullptr));
   }
